@@ -63,9 +63,9 @@ const LoginScreen = ({ onLogin }) => {
 
         <button
           onClick={() => onLogin({
-            name: 'Ahmad Syafi\'i, S.Pd.',
-            email: 'ahmad.syafii@tunasglobal.sch.id',
-            role: 'Wali Kelas / Guru Piket',
+            name: 'Ms Vika',
+            email: 'Msvika@tunasglobal.sch.id',
+            role: 'Guru Kelas',
             photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150'
           })}
           className="w-full py-3.5 px-4 bg-gradient-to-r from-white to-purple-50 hover:from-purple-50 hover:to-indigo-50 text-gray-800 border-2 border-gray-300 hover:border-purple-500 rounded-2xl font-bold transition-all shadow-md flex items-center justify-center gap-3 group text-sm"
