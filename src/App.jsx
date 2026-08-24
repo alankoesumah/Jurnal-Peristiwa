@@ -11,8 +11,8 @@ import {
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSMghRM_8lpBRJ82ahqy_9ZaJQyfmzDM2I-ERMfYS_AD0KK0d6E81j2kt2TSZ3uVjj3w/exec"; // <-- GANTI URL INI DENGAN URL WEB APP ANDA
 
 const KATEGORI_OPTIONS = [
-  'Konflik antar siswa', 'Perkelahian', 'Bullying', 'Perilaku', 
-  'Pelanggaran aturan', 'Kerusakan barang', 'Masalah sosial', 
+  'Konflik antar siswa', 'Terluka', 
+  'Pelanggaran aturan', 'Kerusakan barang', 
   'Masalah media sosial', 'Masalah lainnya'
 ];
 
@@ -20,7 +20,7 @@ const PERAN_OPTIONS = ['Siswa Terlibat', 'Korban', 'Saksi'];
 
 const PIHAK_OPTIONS = [
   'Wali Kelas', 'Kepala Sekolah', 'Orang Tua/Wali Siswa', 
-  'Konselor/Psikolog Sekolah', 'Koordinator Tingkat', 
+  'Konselor/Psikolog Sekolah', 'Koordinator Fase', 
   'Guru Mata Pelajaran', 'Lainnya'
 ];
 
@@ -28,7 +28,7 @@ const BANTUAN_OPTIONS = [
   'Tidak ada bantuan khusus', 'Tindak lanjut dari Wali Kelas', 
   'Tindak lanjut dari Kepala Sekolah', 'Konsultasi dengan Psikolog/Konselor', 
   'Pendampingan siswa', 'Pertemuan dengan Orang Tua/Wali', 
-  'Mediation antar siswa', 'Pemantauan lanjutan'
+  'Mediasi antar siswa', 'Pemantauan lanjutan'
 ];
 
 const LoginScreen = ({ onLogin }) => {
@@ -58,7 +58,7 @@ const LoginScreen = ({ onLogin }) => {
           <div className="font-bold flex items-center gap-1.5 text-purple-900">
             <ShieldCheck size={16} /> Akses Terbatas Khusus Guru
           </div>
-          <p className="leading-relaxed">Silakan masuk menggunakan akun Google resmi sekolah (@tunasglobal.sch.id) Anda.</p>
+          <p className="leading-relaxed">Silakan masuk menggunakan akun Google yang terdaftar ke drive sekolah.</p>
         </div>
 
         <button
