@@ -8,7 +8,7 @@ import {
 // ==========================================
 // KONFIGURASI BACKEND (Ganti dengan URL Web App GAS Anda)
 // ==========================================
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby.../exec"; // <-- GANTI URL INI DENGAN URL WEB APP ANDA
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSMghRM_8lpBRJ82ahqy_9ZaJQyfmzDM2I-ERMfYS_AD0KK0d6E81j2kt2TSZ3uVjj3w/exec"; // <-- GANTI URL INI DENGAN URL WEB APP ANDA
 
 const KATEGORI_OPTIONS = [
   'Konflik antar siswa', 'Perkelahian', 'Bullying', 'Perilaku', 
