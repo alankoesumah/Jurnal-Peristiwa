@@ -19,7 +19,7 @@ const KATEGORI_OPTIONS = [
 const PERAN_OPTIONS = ['Siswa Terlibat', 'Korban', 'Saksi'];
 
 const PIHAK_OPTIONS = [
-  'Wali Kelas', 'Kepala Sekolah', 'Orang Tua/Wali Siswa', 
+  'Wali Kelas', 'Kepala Sekolah', 'Wakasek Kesiswaan', 'Orang Tua/Wali Siswa', 
   'Konselor/Psikolog Sekolah', 'Koordinator Fase', 
   'Guru Mata Pelajaran', 'Lainnya'
 ];
