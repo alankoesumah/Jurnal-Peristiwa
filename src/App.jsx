@@ -31,6 +31,15 @@ const BANTUAN_OPTIONS = [
   'Mediasi antar siswa', 'Pemantauan lanjutan'
 ];
 
+// Data dari Google Sheets berupa teks "A, B, C" -> ubah jadi array
+const toArray = (v) => {
+  if (Array.isArray(v)) return v;
+  if (typeof v === 'string' && v.trim()) {
+    return v.split(',').map(s => s.trim()).filter(Boolean);
+  }
+  return [];
+};
+
 const LoginScreen = ({ onLogin }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-950 to-purple-950 flex items-center justify-center p-4">
@@ -290,10 +299,12 @@ const StudentSearchAndAdd = ({ onAddStudent, hasParticipants, masterStudents }) 
       return;
     }
     const timer = setTimeout(() => {
+      const q = searchTerm.toLowerCase();
+      // String(...) supaya aman jika NIS/kelas bertipe angka atau kosong
       const results = masterStudents.filter(s => 
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        s.nis.includes(searchTerm) ||
-        s.kelas.toLowerCase().includes(searchTerm.toLowerCase())
+        String(s.name || '').toLowerCase().includes(q) || 
+        String(s.nis || '').includes(searchTerm) ||
+        String(s.kelas || '').toLowerCase().includes(q)
       );
       setSearchResults(results);
     }, 300);
@@ -424,7 +435,13 @@ const StudentSearchAndAdd = ({ onAddStudent, hasParticipants, masterStudents }) 
 };
 
 const IncidentForm = ({ initialData, onCancel, onSave, currentUser, onLogout, masterStudents }) => {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState(initialData ? {
+    ...initialData,
+    // Saat edit, data dari Sheets berupa teks "A, B" -> jadikan array
+    pihak_yang_diinfokan: toArray(initialData.pihak_yang_diinfokan),
+    bantuan_yang_diperlukan: toArray(initialData.bantuan_yang_diperlukan),
+    participants: initialData.participants || []
+  } : {
     tanggal_kejadian: new Date().toISOString().split('T')[0],
     waktu_kejadian: new Date().toTimeString().slice(0, 5),
     tempat_kejadian: '',
@@ -664,8 +681,20 @@ const IncidentForm = ({ initialData, onCancel, onSave, currentUser, onLogout, ma
   );
 };
 
-const IncidentDetail = ({ incident, onBack, onEdit, currentUser, onLogout }) => {
+const IncidentDetail = ({ incident, onBack, onEdit, onDelete, currentUser, onLogout }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!incident) return null;
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    const success = await onDelete(incident);
+    if (!success) {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6 pb-12 space-y-6 animate-in fade-in duration-300">
@@ -682,12 +711,20 @@ const IncidentDetail = ({ incident, onBack, onEdit, currentUser, onLogout }) => 
           </div>
         </div>
 
-        <button 
-          onClick={() => onEdit(incident)} 
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white rounded-2xl font-bold text-xs shadow-md transition-all border border-purple-600"
-        >
-          <Edit3 size={15} /> Edit Peristiwa
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-red-50 text-red-700 border border-red-300 rounded-2xl font-bold text-xs shadow-sm transition-all"
+          >
+            <Trash2 size={15} /> Hapus
+          </button>
+          <button 
+            onClick={() => onEdit(incident)} 
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-800 hover:to-indigo-800 text-white rounded-2xl font-bold text-xs shadow-md transition-all border border-purple-600"
+          >
+            <Edit3 size={15} /> Edit Peristiwa
+          </button>
+        </div>
       </div>
 
       <div className="bg-gradient-to-b from-white via-purple-50/20 to-indigo-50/30 rounded-3xl border border-purple-200 shadow-sm overflow-hidden divide-y divide-purple-200">
@@ -769,6 +806,42 @@ const IncidentDetail = ({ incident, onBack, onEdit, currentUser, onLogout }) => 
           </div>
         </div>
       </div>
+
+      {/* Dialog konfirmasi hapus */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-red-200 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-red-100 text-red-700 rounded-2xl">
+                <AlertCircle size={22} />
+              </div>
+              <h3 className="font-extrabold text-gray-900">Hapus peristiwa ini?</h3>
+            </div>
+            <p className="text-xs text-gray-700 leading-relaxed">
+              Peristiwa <b>{incident.incident_id}</b> beserta{' '}
+              <b>{incident.participants ? incident.participants.length : 0} data siswa terlibat</b>{' '}
+              akan dihapus permanen dari Google Sheets dan tidak bisa dibatalkan.
+            </p>
+            <div className="flex gap-2.5 justify-end pt-1">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-2xl font-bold text-xs disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 size={14} />}
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -842,6 +915,35 @@ const App = () => {
     }
   };
 
+  // Hapus peristiwa + siswa terlibat di Google Sheets
+  // Mengembalikan true jika berhasil, false jika gagal
+  const handleDeleteIncident = async (incident) => {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'delete', incident_id: incident.incident_id })
+      });
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        // Hapus langsung dari tampilan, lalu sinkronkan dengan Sheets
+        setIncidents(prev => prev.filter(i => i.incident_id !== incident.incident_id));
+        setSelectedIncident(null);
+        setCurrentView('list');
+        fetchDataFromCloud();
+        return true;
+      }
+
+      alert("Gagal menghapus: " + result.message);
+      return false;
+    } catch (error) {
+      console.error("Error deleting incident:", error);
+      alert("Terjadi kesalahan jaringan saat menghapus data.");
+      return false;
+    }
+  };
+
   if (!currentUser) {
     return <LoginScreen onLogin={handleLogin} />;
   }
@@ -897,6 +999,7 @@ const App = () => {
           incident={selectedIncident}
           onBack={() => { setSelectedIncident(null); setCurrentView('list'); }}
           onEdit={(inc) => { setEditingIncident(inc); setCurrentView('edit'); }}
+          onDelete={handleDeleteIncident}
           currentUser={currentUser}
           onLogout={handleLogout}
         />
